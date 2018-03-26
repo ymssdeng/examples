@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  * @author denghui
  * @create 2018/3/23
  */
-@Component
+//@Component
 public class DirectExample {
 
     @Value("${example.rabbitmq.host}")
@@ -29,7 +29,7 @@ public class DirectExample {
     @Value("${example.rabbitmq.queue.a.routing}")
     private String routing;
 
-    @Component
+    //@Component
     public class Producer {
 
         @PostConstruct
@@ -51,7 +51,7 @@ public class DirectExample {
 
     }
 
-    @Component
+    //@Component
     public class Consumer {
 
         @PostConstruct

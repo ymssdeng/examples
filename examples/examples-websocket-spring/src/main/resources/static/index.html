@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello WebSocket</title>
+</head>
+<body>
+
+<script>
+    var socket = new WebSocket('ws://localhost:8080/example');
+
+    socket.onopen = function() {
+        socket.send('hello');
+    };
+</script>
+</body>
+</html>

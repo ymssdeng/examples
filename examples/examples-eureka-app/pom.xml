@@ -9,30 +9,18 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>gateway</artifactId>
+  <artifactId>examples-eureka-app</artifactId>
 
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-eureka</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zuul</artifactId>
+      <artifactId>spring-cloud-starter-ribbon</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>com.marcosbarbero.cloud</groupId>
-      <artifactId>spring-cloud-zuul-ratelimit</artifactId>
-      <version>1.5.0.RELEASE</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
   </dependencies>
-
 </project>

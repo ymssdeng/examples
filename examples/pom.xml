@@ -41,6 +41,8 @@
     <module>examples-eureka-server</module>
     <module>examples-eureka-app</module>
     <module>examples-eureka-ms</module>
+    <module>examples-consul-ms</module>
+    <module>examples-consul-app</module>
   </modules>
 
   <dependencyManagement>

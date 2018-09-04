@@ -25,7 +25,7 @@ public class OplogTest {
 
     @Bean
     public MongoClient mongoClient() {
-        return new MongoClient("10.1.126.11:20099");
+        return new MongoClient("xx");
     }
 
     @Bean
@@ -41,7 +41,7 @@ public class OplogTest {
     @Test
     public void test() throws InterruptedException {
         OplogReader reader = oplogReader();
-        reader.start("fenqifu.geinihua");
+        reader.start("xx");
 
         TimeUnit.SECONDS.sleep(15);
 

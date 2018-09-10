@@ -15,15 +15,29 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class DtsProperties {
 
-    private String sourceUrl;
-    private String sourceTable;
-    private int queryThread = 5;
+    private QueryProperties query;
+    private SinkProperties sink;
 
-    private String targetUrl;
-    private String username;
-    private String password;
-    private String targetTable;
-    private int sinkThread = 5;
-    private int batchSize = 100;
+    @Data
+    @NoArgsConstructor
+    public static class QueryProperties {
+        private String url;
+        private String table;
+        private String minId;
+        private String maxId;
+        private int step = 10000;
+        private int threadCount = 5;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class SinkProperties {
+        private String url;
+        private String username;
+        private String password;
+        private String table;
+        private int threadCount = 5;
+        private int batchSize = 100;
+    }
 
 }

@@ -24,7 +24,7 @@ public class DtsConfig {
 
     @Bean
     public MongoDbFactory mongoDbFactory() throws UnknownHostException {
-        return new SimpleMongoDbFactory(new MongoClientURI(dtsProperties.getSourceUrl()));
+        return new SimpleMongoDbFactory(new MongoClientURI(dtsProperties.getQuery().getUrl()));
     }
 
     @Bean
@@ -35,9 +35,9 @@ public class DtsConfig {
     @Bean
     public HikariDataSource mysqlDataSource() {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dtsProperties.getTargetUrl());
-        config.setUsername(dtsProperties.getUsername());
-        config.setPassword(dtsProperties.getPassword());
+        config.setJdbcUrl(dtsProperties.getSink().getUrl());
+        config.setUsername(dtsProperties.getSink().getUsername());
+        config.setPassword(dtsProperties.getSink().getPassword());
         return new HikariDataSource(config);
     }
 

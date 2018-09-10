@@ -64,6 +64,7 @@ public class MysqlSinkSplitRunner implements SinkSplitRunner {
             QueryRunner runner = new QueryRunner(jdbcTemplate.getDataSource());
             runner.batch(connection, sb.toString(), params);
             connection.commit();
+            log.info("sink size:{}", records.size());
         } catch (SQLException e) {
             log.error("fail sink split", e);
         } finally {

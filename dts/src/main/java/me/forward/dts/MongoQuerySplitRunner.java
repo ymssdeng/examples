@@ -6,7 +6,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import me.forward.dts.config.DtsProperties;
@@ -14,6 +13,7 @@ import me.forward.dts.model.Record;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
  * @create 2018/9/6
  */
 @Slf4j
+@ConditionalOnClass(MongoTemplate.class)
 @Component
 public class MongoQuerySplitRunner implements QuerySplitRunner {
 

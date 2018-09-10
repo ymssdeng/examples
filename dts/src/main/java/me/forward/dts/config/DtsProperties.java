@@ -21,7 +21,8 @@ public class DtsProperties {
     @Data
     @NoArgsConstructor
     public static class QueryProperties {
-        private String url;
+        private String mongoUrl;
+        private String jdbcUrl;
         private String table;
         private String minId;
         private String maxId;

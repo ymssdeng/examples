@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.net.UnknownHostException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDbFactory;
@@ -23,17 +24,19 @@ public class DtsConfig {
     private DtsProperties dtsProperties;
 
     @Bean
-    public MongoDbFactory mongoDbFactory() throws UnknownHostException {
-        return new SimpleMongoDbFactory(new MongoClientURI(dtsProperties.getQuery().getUrl()));
+    @ConditionalOnProperty(name = "dts.query.mongoUrl")
+    public MongoDbFactory sourceMongoDbFactory() throws UnknownHostException {
+        return new SimpleMongoDbFactory(new MongoClientURI(dtsProperties.getQuery().getMongoUrl()));
     }
 
     @Bean
-    public MongoTemplate mongoTemplate() throws UnknownHostException {
-        return new MongoTemplate(mongoDbFactory());
+    @ConditionalOnProperty(name = "dts.query.mongoUrl")
+    public MongoTemplate sourceMongoTemplate() throws UnknownHostException {
+        return new MongoTemplate(sourceMongoDbFactory());
     }
 
     @Bean
-    public HikariDataSource mysqlDataSource() {
+    public HikariDataSource targetMysqlDataSource() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(dtsProperties.getSink().getUrl());
         config.setUsername(dtsProperties.getSink().getUsername());
@@ -42,7 +45,7 @@ public class DtsConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(mysqlDataSource());
+    public JdbcTemplate targetJdbcTemplate() {
+        return new JdbcTemplate(targetMysqlDataSource());
     }
 }

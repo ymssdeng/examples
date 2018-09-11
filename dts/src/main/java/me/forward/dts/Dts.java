@@ -36,6 +36,7 @@ public class Dts implements ApplicationRunner {
     private SinkSplitRunner sinkSplitRunner;
 
     private ExecutorService queryExecutor;
+    private ExecutorService mapExecutor;
     private ExecutorService sinkExecutor;
 
     @PostConstruct
@@ -43,6 +44,8 @@ public class Dts implements ApplicationRunner {
         ThreadFactoryBuilder builder = new ThreadFactoryBuilder();
         builder.setNameFormat("query-runner-%d");
         queryExecutor = Executors.newFixedThreadPool(dtsProperties.getQuery().getThreadCount(), builder.build());
+        builder.setNameFormat("map-runner-%d");
+        mapExecutor = Executors.newFixedThreadPool(dtsProperties.getQuery().getThreadCount(), builder.build());
         builder.setNameFormat("sink-runner-%d");
         sinkExecutor = Executors.newFixedThreadPool(dtsProperties.getSink().getThreadCount(), builder.build());
     }
@@ -74,12 +77,12 @@ public class Dts implements ApplicationRunner {
                         })
                         .filter(r -> r != null)
                         .collect(Collectors.toList());
-                    }, queryExecutor)
+                    }, mapExecutor)
                 .thenAcceptAsync(splits -> {
                     for (List<Record> split : splits) {
                         sinkFutures.add(CompletableFuture.runAsync(() -> sinkSplitRunner.sink(split), sinkExecutor));
                     }
-                }, queryExecutor);
+                }, sinkExecutor);
             queryFutures.add(future);
         }
 

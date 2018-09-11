@@ -29,6 +29,8 @@ public class MysqlSinkSplitRunner implements SinkSplitRunner {
     private DtsProperties dtsProperties;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private MetricService metricService;
 
     public void sink(List<Record> records) {
         Connection connection = null;
@@ -64,6 +66,8 @@ public class MysqlSinkSplitRunner implements SinkSplitRunner {
             QueryRunner runner = new QueryRunner(jdbcTemplate.getDataSource());
             runner.batch(connection, sb.toString(), params);
             connection.commit();
+
+            metricService.addSankSize(records.size());
             log.info("sink size:{}", records.size());
         } catch (SQLException e) {
             log.error("fail sink split", e);

@@ -34,6 +34,8 @@ public class Dts implements ApplicationRunner {
     private FieldMapper fieldMapper;
     @Autowired
     private SinkSplitRunner sinkSplitRunner;
+    @Autowired
+    private MetricService metricService;
 
     private ExecutorService queryExecutor;
     private ExecutorService mapExecutor;
@@ -51,6 +53,8 @@ public class Dts implements ApplicationRunner {
     }
 
     public void start() {
+        metricService.startQuery();
+
         Range<String> range = querySplitRunner.getMinMaxId();
         List<String> ids = querySplitRunner.splitId(range);
 
@@ -79,6 +83,7 @@ public class Dts implements ApplicationRunner {
                         .collect(Collectors.toList());
                     }, mapExecutor)
                 .thenAcceptAsync(splits -> {
+                    metricService.startSink();
                     for (List<Record> split : splits) {
                         sinkFutures.add(CompletableFuture.runAsync(() -> sinkSplitRunner.sink(split), sinkExecutor));
                     }
@@ -88,9 +93,13 @@ public class Dts implements ApplicationRunner {
 
         CompletableFuture.allOf(queryFutures.toArray(new CompletableFuture[0]))
             .whenComplete((v, t) -> {
-                CompletableFuture.allOf(sinkFutures.toArray(new CompletableFuture[0]))
-                    .whenComplete((v2, t2) -> log.info("sink done"));
+            metricService.endQuery();
+            CompletableFuture.allOf(sinkFutures.toArray(new CompletableFuture[0]))
+                .whenComplete((v2, t2) -> {
+                metricService.endSink();
+                metricService.print();
             });
+        });
     }
 
     @Override

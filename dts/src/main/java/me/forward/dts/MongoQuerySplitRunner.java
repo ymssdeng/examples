@@ -30,6 +30,8 @@ public class MongoQuerySplitRunner implements QuerySplitRunner {
     private DtsProperties dtsProperties;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private MetricService metricService;
 
     @Override
     public Range<String> getMinMaxId() {
@@ -84,6 +86,7 @@ public class MongoQuerySplitRunner implements QuerySplitRunner {
             }
             records.add(record);
         }
+        metricService.addSize(records.size());
         log.info("query split:{}", range);
         return records;
     }

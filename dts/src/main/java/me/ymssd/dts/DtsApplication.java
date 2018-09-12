@@ -1,6 +1,6 @@
-package me.forward.dts;
+package me.ymssd.dts;
 
-import me.forward.dts.config.DtsConfig;
+import me.ymssd.dts.config.DtsConfig;
 import org.yaml.snakeyaml.Yaml;
 
 /**

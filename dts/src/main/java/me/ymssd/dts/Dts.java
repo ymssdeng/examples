@@ -1,4 +1,4 @@
-package me.forward.dts;
+package me.ymssd.dts;
 
 import static java.time.Instant.ofEpochMilli;
 import static java.time.LocalDateTime.ofInstant;
@@ -22,12 +22,12 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-import me.forward.dts.config.DtsConfig;
-import me.forward.dts.config.DtsConfig.QueryConfig;
-import me.forward.dts.config.DtsConfig.SinkConfig;
-import me.forward.dts.model.QuerySplit;
-import me.forward.dts.model.Record;
-import me.forward.dts.model.SinkSplit;
+import me.ymssd.dts.config.DtsConfig;
+import me.ymssd.dts.config.DtsConfig.QueryConfig;
+import me.ymssd.dts.config.DtsConfig.SinkConfig;
+import me.ymssd.dts.model.QuerySplit;
+import me.ymssd.dts.model.Record;
+import me.ymssd.dts.model.SinkSplit;
 
 /**
  * @author denghui

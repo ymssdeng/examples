@@ -1,4 +1,4 @@
-package me.forward.dts;
+package me.ymssd.dts;
 
 import com.google.common.base.Joiner;
 import java.sql.Connection;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import me.forward.dts.model.Record;
-import me.forward.dts.model.SinkSplit;
+import me.ymssd.dts.model.Record;
+import me.ymssd.dts.model.SinkSplit;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 

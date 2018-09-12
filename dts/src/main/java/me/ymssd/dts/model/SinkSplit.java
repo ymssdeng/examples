@@ -1,4 +1,4 @@
-package me.forward.dts.model;
+package me.ymssd.dts.model;
 
 import java.util.List;
 import javax.sql.DataSource;

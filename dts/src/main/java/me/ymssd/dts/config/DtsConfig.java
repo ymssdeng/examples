@@ -1,4 +1,4 @@
-package me.forward.dts.config;
+package me.ymssd.dts.config;
 
 import java.util.Map;
 import lombok.Data;

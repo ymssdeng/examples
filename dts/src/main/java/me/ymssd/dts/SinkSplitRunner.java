@@ -1,6 +1,6 @@
-package me.forward.dts;
+package me.ymssd.dts;
 
-import me.forward.dts.model.SinkSplit;
+import me.ymssd.dts.model.SinkSplit;
 
 /**
  * @author denghui

@@ -1,4 +1,4 @@
-package me.forward.dts.model;
+package me.ymssd.dts.model;
 
 import com.google.common.collect.Range;
 import lombok.Data;

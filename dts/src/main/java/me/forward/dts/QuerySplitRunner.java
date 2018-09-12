@@ -2,6 +2,7 @@ package me.forward.dts;
 
 import com.google.common.collect.Range;
 import java.util.List;
+import me.forward.dts.model.QuerySplit;
 import me.forward.dts.model.Record;
 
 /**
@@ -10,9 +11,9 @@ import me.forward.dts.model.Record;
  */
 public interface QuerySplitRunner {
 
-    Range<String> getMinMaxId();
+    Range<String> getMinMaxId(String defaultMinId, String defaultMaxId, String table);
 
-    List<String> splitId(Range<String> range);
+    List<String> splitId(Range<String> range, int step);
 
-    List<Record> query(Range<String> range);
+    List<Record> query(QuerySplit split);
 }

@@ -1,33 +1,25 @@
 package me.forward.dts;
 
-import com.alibaba.fastjson.JSON;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import com.google.common.collect.Maps;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import javax.annotation.PostConstruct;
 import me.forward.dts.model.Record;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 
 /**
  * @author denghui
  * @create 2018/9/6
  */
-@Component
 public class FieldMapper implements Function<Record, Record> {
 
-    private static final String MAPPER_FILE = "mapper.json";
-    private Map<String, Object> innerMap;
+    private Map<String, String> mapping = new HashMap<>();
     private Map<String, Function> converters = new HashMap<>();
 
-    @PostConstruct
-    public void init() throws IOException {
-        byte[] bytes = Files.readAllBytes(new ClassPathResource(MAPPER_FILE).getFile().toPath());
-        innerMap = JSON.parseObject(new String(bytes, StandardCharsets.UTF_8)).getInnerMap();
+    public FieldMapper(Map<String, String> mapping) {
+        if (mapping != null && !mapping.isEmpty()) {
+            this.mapping = mapping;
+        }
 
         addValueConverter("_id", ValueConverters.TO_STRING_CONVERTER);
     }
@@ -40,7 +32,7 @@ public class FieldMapper implements Function<Record, Record> {
     public Record apply(Record record) {
         Record mappedRecord = new Record();
         for (SimpleEntry<String, Object> field : record) {
-            Object mappedKey = innerMap.get(field.getKey());
+            String mappedKey = mapping.get(field.getKey());
             if (mappedKey != null) {
                 Object value = field.getValue();
                 if (converters.containsKey(field.getKey())) {

@@ -7,39 +7,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import me.forward.dts.config.DtsProperties;
 import me.forward.dts.model.Record;
+import me.forward.dts.model.SinkSplit;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 /**
  * @author denghui
  * @create 2018/9/6
  */
 @Slf4j
-@Component
 public class MysqlSinkSplitRunner implements SinkSplitRunner {
 
     public static final String KEYWORD_ESCAPE = "`";
 
-    @Autowired
-    private DtsProperties dtsProperties;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private MetricService metricService;
-
-    public void sink(List<Record> records) {
+    public void sink(SinkSplit split) {
         Connection connection = null;
         try {
-            List<String> columns = getColumnNames(dtsProperties.getSink().getTable());
+            List<String> columns = getColumnNames(split);
             StringBuilder sb = new StringBuilder();
             sb.append("INSERT IGNORE INTO ");
             sb.append(KEYWORD_ESCAPE);
-            sb.append(dtsProperties.getSink().getTable());
+            sb.append(split.getTable());
             sb.append(KEYWORD_ESCAPE);
             sb.append(" (");
             sb.append(KEYWORD_ESCAPE);
@@ -51,9 +40,9 @@ public class MysqlSinkSplitRunner implements SinkSplitRunner {
             sb.append(Joiner.on(", ").join(Arrays.asList(placeholders)));
             sb.append(")");
 
-            Object[][] params = new Object[records.size()][];
-            for (int i = 0; i < records.size(); i++) {
-                Record record = records.get(i);
+            Object[][] params = new Object[split.getRecords().size()][];
+            for (int i = 0; i < split.getRecords().size(); i++) {
+                Record record = split.getRecords().get(i);
 
                 Object[] param = new Object[record.size()];
                 for (int j = 0; j < record.size(); j++) {
@@ -61,14 +50,13 @@ public class MysqlSinkSplitRunner implements SinkSplitRunner {
                     params[i] = param;
                 }
             }
-            connection = jdbcTemplate.getDataSource().getConnection();
+            connection = split.getDataSource().getConnection();
             connection.setAutoCommit(false);
-            QueryRunner runner = new QueryRunner(jdbcTemplate.getDataSource());
+            QueryRunner runner = new QueryRunner(split.getDataSource());
             runner.batch(connection, sb.toString(), params);
             connection.commit();
 
-            metricService.addSankSize(records.size());
-            log.info("sink size:{}", records.size());
+            log.info("sink size:{}", split.getRecords().size());
         } catch (SQLException e) {
             log.error("fail sink split", e);
         } finally {
@@ -77,14 +65,14 @@ public class MysqlSinkSplitRunner implements SinkSplitRunner {
 
     }
 
-    private List<String> getColumnNames(String targetTable) throws SQLException {
+    private List<String> getColumnNames(SinkSplit split) throws SQLException {
         StringBuilder sb = new StringBuilder("SELECT * FROM ");
         sb.append(KEYWORD_ESCAPE);
-        sb.append(targetTable);
+        sb.append(split.getTable());
         sb.append(KEYWORD_ESCAPE);
         sb.append(" WHERE 1=2 limit 1");
 
-        QueryRunner runner = new QueryRunner(jdbcTemplate.getDataSource());
+        QueryRunner runner = new QueryRunner(split.getDataSource());
         return runner.query(sb.toString(), rs -> {
             List<String> names = new ArrayList<>();
             int count = rs.getMetaData().getColumnCount();

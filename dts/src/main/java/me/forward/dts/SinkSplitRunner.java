@@ -1,7 +1,6 @@
 package me.forward.dts;
 
-import java.util.List;
-import me.forward.dts.model.Record;
+import me.forward.dts.model.SinkSplit;
 
 /**
  * @author denghui
@@ -9,5 +8,5 @@ import me.forward.dts.model.Record;
  */
 public interface SinkSplitRunner {
 
-    void sink(List<Record> records);
+    void sink(SinkSplit sinkSplit);
 }

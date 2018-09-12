@@ -1,55 +1,55 @@
 package me.forward.dts;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.lte;
+
 import com.google.common.collect.Range;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import me.forward.dts.config.DtsProperties;
+import me.forward.dts.model.QuerySplit;
 import me.forward.dts.model.Record;
 import org.apache.commons.lang.StringUtils;
+import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
 
 /**
  * @author denghui
  * @create 2018/9/6
  */
 @Slf4j
-@ConditionalOnClass(MongoTemplate.class)
-@Component
 public class MongoQuerySplitRunner implements QuerySplitRunner {
 
-    @Autowired
-    private DtsProperties dtsProperties;
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    @Autowired
-    private MetricService metricService;
+    private MongoDatabase mongoDatabase;
+
+    public MongoQuerySplitRunner(MongoDatabase mongoDatabase) {
+        this.mongoDatabase = mongoDatabase;
+    }
 
     @Override
-    public Range<String> getMinMaxId() {
-        String collection = dtsProperties.getQuery().getTable();
-        String minId = dtsProperties.getQuery().getMinId();
-        String maxId = dtsProperties.getQuery().getMaxId();
+    public Range<String> getMinMaxId(String defaultMinId, String defaultMaxId, String collection) {
+        String minId = defaultMinId;
+        String maxId = defaultMaxId;
         if (StringUtils.isEmpty(minId)) {
-            DBObject query = new BasicDBObject();
-            DBObject projection = new BasicDBObject("_id", 1);
-            DBObject sort = new BasicDBObject("_id", 1);
-            DBObject min = mongoTemplate.getCollection(collection).findOne(query, projection, sort);
+            Document min = mongoDatabase.getCollection(collection)
+                .find()
+                .projection(Projections.include("_id"))
+                .sort(Sorts.ascending("_id"))
+                .first();
             minId = min.get("_id").toString();
         }
         if (StringUtils.isEmpty(maxId)) {
-            DBObject query = new BasicDBObject();
-            DBObject projection = new BasicDBObject("_id", 1);
-            DBObject sort = new BasicDBObject("_id", -1);
-            DBObject max = mongoTemplate.getCollection(collection).findOne(query, projection, sort);
+            Document max = mongoDatabase.getCollection(collection)
+                .find()
+                .projection(Projections.include("_id"))
+                .sort(Sorts.descending("_id"))
+                .first();
             maxId = max.get("_id").toString();
         }
 
@@ -57,8 +57,7 @@ public class MongoQuerySplitRunner implements QuerySplitRunner {
     }
 
     @Override
-    public List<String> splitId(Range<String> range) {
-        int step = dtsProperties.getQuery().getStep();
+    public List<String> splitId(Range<String> range, int step) {
         int lowerTime = Integer.valueOf(range.lowerEndpoint().substring(0, 8), 16);
         int upperTime = Integer.valueOf(range.upperEndpoint().substring(0, 8), 16);
         String suffix = range.lowerEndpoint().substring(8);
@@ -72,22 +71,21 @@ public class MongoQuerySplitRunner implements QuerySplitRunner {
         return ids;
     }
 
-    public List<Record> query(Range<String> range) {
+    public List<Record> query(QuerySplit split) {
         List<Record> records = new ArrayList<>();
-        DBObject query = new BasicDBObject("_id",
-            new BasicDBObject("$gte", new ObjectId(range.lowerEndpoint()))
-                .append("$lte", new ObjectId(range.upperEndpoint())));
-        DBCursor cursor = mongoTemplate.getCollection(dtsProperties.getQuery().getTable()).find(query);
+        MongoCursor<Document> cursor = mongoDatabase.getCollection(split.getTable())
+            .find(and(gte("_id", new ObjectId(split.getRange().lowerEndpoint())),
+                lte("_id", new ObjectId(split.getRange().upperEndpoint()))))
+            .iterator();
         while (cursor.hasNext()) {
-            DBObject object = cursor.next();
+            Document object = cursor.next();
             Record record = new Record();
             for (String key : object.keySet()) {
                 record.add(new SimpleEntry<>(key, object.get(key)));
             }
             records.add(record);
         }
-        metricService.addSize(records.size());
-        log.info("query split:{}", range);
+        log.info("query split:{}", split.getRange());
         return records;
     }
 }
